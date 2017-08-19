@@ -31,3 +31,47 @@ $ gunzip -dv train-images-idx3-ubyte.gz
 
 ### Images 文件的数据格式
 
+下面是 MNIST 官方网页上，对训练图像数据的格式说明。
+
+```
+TRAINING SET IMAGE FILE (train-images-idx3-ubyte):
+
+[offset] [type]          [value]          [description] 
+0000     32 bit integer  0x00000803(2051) magic number 
+0004     32 bit integer  60000            number of images 
+0008     32 bit integer  28               number of rows 
+0012     32 bit integer  28               number of columns 
+0016     unsigned byte   ??               pixel 
+0017     unsigned byte   ??               pixel 
+........ 
+xxxx     unsigned byte   ??               pixel
+Pixels are organized row-wise. Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).
+```
+
+如上所述，文件的的开始 128 个字节，分为 4 段，每段 4 个字节，分别表示：文件标识符（magic）；图像个数；每个图像的行数；每个图像的列数。我们需要验证一下我们下载与解压的文件是否正确：
+
+``` shell
+$ xxd -c 4 -l 16 train-images-idx3-ubyte 
+00000000: 0000 0803  ....
+00000004: 0000 ea60  ...`
+00000008: 0000 001c  ....
+0000000c: 0000 001c  ....
+```
+
+我们先检查一下文件标识符是否是 2051：
+
+``` shell
+$ ((magic=0x0803))
+$ echo $magic
+2051
+```
+
+再检查训练图像的数量是否是 60000：
+
+``` shell
+$ ((numImages=0xea60))
+$ echo $numImages
+60000
+```
+
+其他的诸如图像的行列数的，可以参照检查。
