@@ -25,7 +25,7 @@ $ gunzip -dv train-images-idx3-ubyte.gz
 
 解压之后，得到一个 IDX 格式的文件，文件名是 `train-images-idx3-ubyte`。我们不必深究 IDX 文件格式的问题，我们直接根据 MNIST 官网上对文件格式的描述来分析文件的数据结构即可。
 
-## 加载数据
+## 查看数据
 
 这里以加载训练图像数据集文件 `train-images-idx3-ubyte` 作为例子来介绍文件的加载方法，另外三个文件可以此类推。
 
