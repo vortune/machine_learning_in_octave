@@ -4,7 +4,7 @@
 
 ## 下载数据
 
-我们首先需要从 [MNIST](http://yann.lecun.com/exdb/mnist/) 数据官网下载手写数据数据。数据库分为 4 个文件：
+我们首先需要从 [MNIST](http://yann.lecun.com/exdb/mnist/) 数据官网下载手写数字数据。数据库分为 4 个文件：
 
  * [train-images-idx3-ubyte.gz](http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz):         training set images (9912422 bytes)
  * [train-labels-idx1-ubyte.gz](http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz):           training set labels (28881 bytes)
@@ -74,7 +74,7 @@ $ echo $numImages
 60000
 ```
 
-其他的诸如图像的行列数的，可以参照检查。
+其他的诸如图像的行列数等等，可以参照检查。
 
 ## 加载数据
 
@@ -111,7 +111,7 @@ fp =  4
 
 > 函数的第二个参数 'rb' 中的 r 表示文件以只读模式打开，b 表示以二进制（binary）的数据格式打开。
 
-加载各种文件信息：
+加载各项文件信息：
 
 ``` octave
 octave:3> magic = fread(fp, 1, 'int32', 0, 'ieee-be')
@@ -126,7 +126,7 @@ numCols =  28
 
 上述操作加载的训练数据信息分别是：文件识别符；图像数量；单个图像的行数；单个图像的列数。
 
-> 这里需要说明的是 octave 的 `fread` 函数是通过 C 库的文件 I/O 函数来操作的。octave 每次的文件 I/O 操作，无论是 `fread` 还是 `fwrite` 等，它都会将文件的作业游标（position indicator）增加一个偏移量。这个偏移量等于函数的第二个参数 'SIZE' 与第三个参数 'PRECISION' 的乘积。
+> 这里需要说明的是 octave 的 `fread` 函数是通过 C 库的文件 I/O 函数来操作的，它隐含一个文件 I/O 的位置游标（position indicator）。octave 每次的文件 I/O 操作，无论是 `fread` 还是 `fwrite` 等等，它都会将文件的作业游标增加一个偏移量。这个偏移量等于函数的第二个参数 'SIZE' 与第三个参数 'PRECISION' 的乘积。
 >
 > 我们可以通过 `ftell` 函数来查看当前的作业游标位置，也可以通过 `fseek` 函数来设置游标位置。例如：
 >
@@ -138,7 +138,7 @@ numCols =  28
 
 ### 加载图像数据
 
-现在到了本章的核心内容。根据 MNIST 官方的说法：“Pixels are organized row-wise. Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).”。就是说，图像是被逐行串行的方式来保存的，并且每个像素有一个 8 位二进制无符号数表示，即 0～255。
+现在到了本章的核心内容。根据 MNIST 官方的说法：“Pixels are organized row-wise. Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).”。就是说，图像是以逐行串行的方式来保存的，并且每个像素有一个 8 位二进制无符号数表示，即它的值为 0～255。
 
 我们完全可以创建一个 28 \* 28 \* 60000 的 3 维数组将数据逐个地循环填充进去。 在这里我们不打算这样做，而且是利用 octave 内置的数组与矩阵操作函数来实现数据格式的调制。
 
@@ -146,7 +146,7 @@ numCols =  28
 octave:10> images = fread(fp, inf, 'unsigned char');
 ```
 
-上述操作中，参数 'inf' 指示 octave 尽可能地加载文件的所有剩余数据，数据的单位是 `unsigned char` 。此时的  images 是一个超大的单列数组（column vector）。
+上述操作中，参数 'inf' 指示 octave 尽可能地加载文件的所有剩余数据，数据的单位是 `unsigned char` 。此时的  images 是一个超大的单列向量（column vector）。
 
 至此，未来将要用到的训练图像数据，已经加载到计算机的内存中。在任何对外设的操作作业中，**尽快关闭文件 I/O 是软件工程师必须养成的良好习惯**：
 
@@ -157,7 +157,7 @@ ans = 0
 
 ## 训练数据的调制
 
-还记得官方的说法吗？“Pixels are organized row-wise.”。现在的 images 是一个大的 column vector，相当于数据被转置的 $90^{\circ} $ ，我们暂时先搁置这个问题。
+还记得官方的说法吗？“Pixels are organized row-wise.”，就是说它是按行来排布数据的。现在的 images 是一个大的 column vector，相当于数据被转置的 $90^{\circ} $ ，我们暂时先搁置这个问题。
 
 ### 将数据调制为 3 维数组
 
@@ -167,7 +167,7 @@ ans = 0
 octave:14> images = reshape(images, numCols, numRows, numImages);
 ```
 
-通过 `reshape` 函数，我们将数据整形为 28 x 28 x 60000 的 3 维数组。形象的比喻是，此时的数据调制为一叠 60000 张的卡片，每张卡片上印刷有一张 28 x 28 个像素的图片。让我们抽出其中的第 128 张卡片来看看是什么东西：
+通过 `reshape` 函数，我们将数据整形为一个 28 x 28 x 60000 的 3 维数组。形象的比喻是，此时的数据调制为一叠 60000 张的卡片，每张卡片上印刷有一张 28 x 28 个像素的图片。让我们抽出其中的第 128 张卡片来看看是什么东西：
 
 ``` octave
 octave:34> image(images(:, :, 128))
@@ -176,7 +176,7 @@ octave:34> image(images(:, :, 128))
 Octave 输出如下的图像（Figure 1）：
 ![Figure 1](../../../meta/prepermute_images-128.jpg)
 
-这似乎是一个转置过 $90^{\circ}$，并且翻转过的数字 '4'。
+这似乎是一个转置过 $90^{\circ}$，并且被翻转过的数字 '4'。
 
 ### 共轭转置
 
@@ -205,7 +205,7 @@ octave:39> image(images(:, :, 128))
 
 ### 调制数据为双精度浮点（double）
 
-由于我们加载的这些图片，最终都是要导入到神经网络中，进行前向传播计算的。而当前的神经网络的单元数据一般采用双精度浮点数（double），因此，我们需要将数据进一步调制。
+由于我们加载的这些图片，最终都是要导入到神经网络中进行前向传播计算的。而当前的神经网络的单元数据一般采用双精度浮点数（double），因此，我们需要将数据进一步调制。
 
 ``` octave
 octave:44> images = double(images/255);
@@ -231,4 +231,4 @@ octave:57> imshow(images(:, :, 128))
 
 ## 总结
 
-很容易想到的，就是将我们上述的 octave 环境下的交互操作写成为一个函数。实际上，这些交互操作，也是我在网上找的一些开源项目中源代码中整理的。我演示的这些操作，都是为了方便说明问题来组织的。在真实的工程项目中，情况可能会精细很多。譬如，可以考虑支持机器学习的小批量（mini-patch）训练的加载方式等等。即使是现在的这个 3 维数组的数据组织形式，也是可能根据未来项目发展来修改。
+很容易想到的，就是将我们上述在 octave 环境下的交互操作写成为一个函数。实际上，这些交互操作，也是我从网上找的一些开源项目的源代码中整理的。我演示的这些操作，都是为了方便说明问题来组织的。在真实的工程项目中，情况可能会精细很多。譬如，可以考虑支持机器学习的小批量（mini-patch）训练的加载方式等等。即使是现在的这个 3 维数组的数据组织形式，也是可能根据未来项目发展来修改。
