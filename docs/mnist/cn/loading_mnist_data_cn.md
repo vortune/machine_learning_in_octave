@@ -173,12 +173,28 @@ octave:14> images = reshape(images, numCols, numRows, numImages);
 octave:34> image(images(:, :, 128))
 ```
 
-Octave 输出如下的图像：
-![The 128th image of pre-permutation](../../../meta/prepermute_images-128.jpg)
+Octave 输出如下的图像（Figure 1）：
+![Figure 1](../../../meta/prepermute_images-128.jpg)
 
 这似乎是一个转置过 $90^{\circ}$，并且翻转过的数字 '4'。
 
 ### 共轭转置
 
+正如我们上面所述，现在我们的数据 images 的格式，与官方数据的格式正好是行列对掉的。我们利用 octave 的内建函数 `permute` 将数据转置过来。
 
+``` octave
+octave:36> images = permute(images, [2 1 3]);
+```
 
+**理解共轭转置的关键**是函数的第二个参数 `[2 1 3]` 。它定义了共轭转置的规则，即：新数组中的第 1 个坐标轴的数据，由旧数组的第 2 个坐标轴数据来替换；新数组中的第 2 个坐标轴的数据，由旧数组中的第 1 个坐标轴的数据来填充。这就相当于，将原来的 `images` 数组的每张图片的行列数据都逐一交换了一次。
+
+现在我们再次打印出第 128 个图片看看：
+
+``` octave
+octave:39> image(images(:, :, 128))
+```
+
+我们将看到如下图像（Figure 2）：
+![The 128th image of post-permutation](../../../meta/permuted_images-128.jpg)
+
+现在我们可以很确定第 128 张图片是数字 '4' 了。
